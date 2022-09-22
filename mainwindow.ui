@@ -35,7 +35,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Status :</string>
+     <string>Status : READY</string>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_countdown">
@@ -48,7 +48,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Remain Time :</string>
+     <string>Remain Time : 12:00</string>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_start_time">
@@ -462,12 +462,12 @@ font: bold 50px;
       <property name="title">
        <string>Flow Control</string>
       </property>
-      <widget class="QLabel" name="flow_status">
+      <widget class="QLabel" name="unit">
        <property name="geometry">
         <rect>
-         <x>109</x>
+         <x>155</x>
          <y>33</y>
-         <width>121</width>
+         <width>70</width>
          <height>23</height>
         </rect>
        </property>
@@ -475,7 +475,7 @@ font: bold 50px;
         <string>ml/min </string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
       <widget class="QPushButton" name="flow_sensor_cal">
@@ -489,6 +489,22 @@ font: bold 50px;
        </property>
        <property name="text">
         <string>Calibration</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="flow_rate">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>33</y>
+         <width>71</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </widget>

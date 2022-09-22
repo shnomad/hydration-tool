@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 #endif
 
-#if 1
+#if 0
 
         m_flowSensor = new slf3s1300f;
 
@@ -130,8 +130,8 @@ void MainWindow::Init()
     ui->set_hydration_time->setTime(QTime(12,00));
 
     /*test mode setting*/
-    ui->flow_status->setFont(font_type_1);
-    ui->flow_status->setStyleSheet("background-color: rgb(251, 176, 206);");
+    ui->flow_rate->setFont(font_type_1);
+    ui->flow_rate->setStyleSheet("background-color: rgb(251, 176, 206);");
 
     /*1 sec timer start*/
     timer_sec = new QTimer(this);                           //display system time
