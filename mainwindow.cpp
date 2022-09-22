@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QDateTime>
-#include <QTimer>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,83 +8,94 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QFont label_font;
-    label_font = ui->current_time->font();
-    label_font.setPixelSize(label_font.pointSize()*LABEL_FONT_SIZE_RESETTTING);
-    ui->current_time->setFont(label_font);
+    Init();
 
-    QFont time_font;
-    time_font = ui->start_time->font();
-    time_font.setPixelSize(time_font.pointSize()*LABEL_FONT_SIZE_RESETTTING);
-    ui->start_time->setFont(time_font);
-
-    time_font = ui->end_time->font();
-    time_font.setPixelSize(time_font.pointSize()*LABEL_FONT_SIZE_RESETTTING);
-    ui->end_time->setFont(time_font);
-
-    time_font = ui->residual_time->font();
-    time_font.setPixelSize(time_font.pointSize()*LABEL_FONT_SIZE_RESETTTING);
-    ui->residual_time->setFont(time_font);
-
-    time_font = ui->status->font();
-    time_font.setPixelSize(time_font.pointSize()*LABEL_FONT_SIZE_RESETTTING);
-    ui->status->setFont(time_font);
-
-    QFont tab_font;
-    tab_font = ui->tabWidget->font();
-    tab_font.setPixelSize(tab_font.pointSize()*TAB_FONT_SIZE_RESETTTING);
-    ui->tabWidget->setFont(tab_font);
-
-    timer_sec = new QTimer(this);                          //display system time
+    timer_sec = new QTimer(this);                           //display system time
     QObject::connect(timer_sec, SIGNAL(timeout()), this, SLOT(Display_CurrentTime()));
     timer_sec->start(1000);
+}
+
+void MainWindow::Init()
+{
+
+    /* Create MainWindow display label*/
+    QFont font_type_1, font_type_2;
+    font_type_1.setPointSize(font_type_1.pointSize()*0.5);
+    font_type_2.setPointSize(font_type_2.pointSize()*0.8);
+
+    ui->tabWidget->setFont(font_type_2);
+
+    ui->system_current_time->setFont(font_type_1);
+    ui->hydration_start_time->setFont(font_type_2);
+    ui->hydration_end_time->setFont(font_type_2);
+
+    ui->hydration_status->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
+    ui->hydration_countdown->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
+    ui->hydration_start_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
+    ui->hydration_start_time->setText("Start Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+
+    ui->hydration_end_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
+    ui->hydration_end_time->setText("End Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+
+    ui->hydration_start->setFont(font_type_2);
+    ui->hydration_stop->setFont(font_type_2);
 
 
-#if 0
-    /* channel group 1 */
+    /*home tab*/
+    /* sensor card hydration status table */
     QStringList table_header;
-    table_header<<"Channel"<<"Bias(mV)"<<"Status";
 
-    for(quint8 col_count=0; col_count<3; col_count++)
-        ui->ch_gr_1->insertColumn(col_count);
-    ui->ch_gr_1->setColumnWidth(0,96);
-    ui->ch_gr_1->setColumnWidth(1,160);
-    ui->ch_gr_1->setColumnWidth(2,190);
+    /* CH 1 ~ 8 */
+    ui->ch_gr_1->setColumnCount(3);
+    ui->ch_gr_1->setColumnWidth(0,95);
+    ui->ch_gr_1->setColumnWidth(1,150);
+    ui->ch_gr_1->setColumnWidth(2,200);
+
+    table_header<<"Channel"<<"Bias(mV)"<<"Status";
     ui->ch_gr_1->setHorizontalHeaderLabels(table_header);
 
+    ui->ch_gr_1->setRowCount(8);
     for(quint8 row_count=0; row_count<8; row_count++)
     {
-        ui->ch_gr_1->insertRow(row_count);
-        ui->ch_gr_1->setRowHeight(row_count,40);
+       ui->ch_gr_1->setRowHeight(row_count, 40);
     }
 
-    ui->ch_gr_1->verticalHeader()->hide();
+    ui->ch_gr_1->verticalHeader()->setVisible(false);
+    ui->ch_gr_1->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->ch_gr_1->setFocusPolicy(Qt::NoFocus);
+    ui->ch_gr_1->setSelectionMode(QAbstractItemView::NoSelection);
 
-    /* channel group 2 */
-    for(quint8 col_count=0; col_count<3; col_count++)
-        ui->ch_gr_2->insertColumn(col_count);
-    ui->ch_gr_2->setColumnWidth(0,96);
-    ui->ch_gr_2->setColumnWidth(1,160);
-    ui->ch_gr_2->setColumnWidth(2,190);
+    /* CH 2 ~ 16 */
+    ui->ch_gr_2->setColumnCount(3);
+    ui->ch_gr_2->setColumnWidth(0,95);
+    ui->ch_gr_2->setColumnWidth(1,150);
+    ui->ch_gr_2->setColumnWidth(2,200);
+
+    table_header<<"Channel"<<"Bias(mV)"<<"Status";
     ui->ch_gr_2->setHorizontalHeaderLabels(table_header);
 
+    ui->ch_gr_2->setRowCount(8);
     for(quint8 row_count=0; row_count<8; row_count++)
     {
-        ui->ch_gr_2->insertRow(row_count);
-        ui->ch_gr_2->setRowHeight(row_count,40);
+       ui->ch_gr_2->setRowHeight(row_count, 40);
     }
 
-    ui->ch_gr_2->verticalHeader()->hide();
+    ui->ch_gr_2->verticalHeader()->setVisible(false);
+    ui->ch_gr_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->ch_gr_2->setFocusPolicy(Qt::NoFocus);
+    ui->ch_gr_2->setSelectionMode(QAbstractItemView::NoSelection);
 
-#endif
-
+    /*settings tab*/
+    ui->set_hydration_time->setMaximumTime(QTime(48,00));
+    ui->set_hydration_time->setDisplayFormat("hh:mm");
+    ui->set_hydration_time->setTime(QTime(12,00));
 
 }
 
 
 void MainWindow::Display_CurrentTime()
 {
-    ui->current_time->setText("Current Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+    ui->system_current_time->setText("Current Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
 }
 
 MainWindow::~MainWindow()

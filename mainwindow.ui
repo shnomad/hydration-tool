@@ -16,16 +16,73 @@
     <height>600</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>DejaVu Sans</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="current_time">
+   <widget class="QLabel" name="hydration_status">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>567</y>
-      <width>360</width>
+      <x>10</x>
+      <y>10</y>
+      <width>400</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Status :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_countdown">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>58</y>
+      <width>400</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remain Time :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_start_time">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>10</y>
+      <width>420</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start Time :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_end_time">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>50</y>
+      <width>420</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>End Time :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="system_current_time">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>570</y>
+      <width>300</width>
       <height>30</height>
      </rect>
     </property>
@@ -37,72 +94,102 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>100</y>
+      <y>110</y>
       <width>1024</width>
-      <height>450</height>
+      <height>460</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QTabWidget::pane { /* The tab widget frame */
-    border-top: 2px solid #C2C7CB;
+     <string notr="true">QTabWidget::pane {
+    border: 1px solid black;
+    background: white;
 }
 
-QTabWidget::tab-bar {
-    left: 5px; /* move to the right by 5px */
+QTabWidget::tab-bar:top {
+    top: 1px;
 }
 
-/* Style the tab using the tab sub-control. Note that
-    it reads QTabBar _not_ QTabWidget */
+QTabWidget::tab-bar:bottom {
+    bottom: 1px;
+}
+
+QTabWidget::tab-bar:left {
+    right: 1px;
+}
+
+QTabWidget::tab-bar:right {
+    left: 1px;
+}
+
 QTabBar::tab {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
-                                stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
-    border: 2px solid #C4C4C3;
-    border-bottom-color: #C2C7CB; /* same as the pane color */
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    min-width: 8ex;
-    padding: 2px;
-}
-
-QTabBar::tab:selected, QTabBar::tab:hover {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
-                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+    border: 1px solid black;
 }
 
 QTabBar::tab:selected {
-    border-color: #9B9B9B;
-    border-bottom-color: #C2C7CB; /* same as pane color */
+    background: white;
 }
 
 QTabBar::tab:!selected {
-    margin-top: 2px; /* make non-selected tabs look smaller */
+    background: silver;
 }
 
-/* make use of negative margins for overlapping tabs */
-QTabBar::tab:selected {
-    /* expand/overlap to the left and right by 4px */
-    margin-left: -4px;
-    margin-right: -4px;
+QTabBar::tab:!selected:hover {
+    background: #999;
 }
 
-QTabBar::tab:first:selected {
-    margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
+QTabBar::tab:top:!selected {
+    margin-top: 3px;
 }
 
-QTabBar::tab:last:selected {
-    margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
+QTabBar::tab:bottom:!selected {
+    margin-bottom: 3px;
 }
 
-QTabBar::tab:only-one {
-    margin: 0; /* if there is only one tab, we don't want overlapping margins */
+QTabBar::tab:top, QTabBar::tab:bottom {
+    min-width: 8ex;
+    margin-right: -1px;
+    padding: 5px 10px 5px 10px;
 }
 
-</string>
-    </property>
-    <property name="tabPosition">
-     <enum>QTabWidget::North</enum>
+QTabBar::tab:top:selected {
+    border-bottom-color: none;
+}
+
+QTabBar::tab:bottom:selected {
+    border-top-color: none;
+}
+
+QTabBar::tab:top:last, QTabBar::tab:bottom:last,
+QTabBar::tab:top:only-one, QTabBar::tab:bottom:only-one {
+    margin-right: 0;
+}
+
+QTabBar::tab:left:!selected {
+    margin-right: 3px;
+}
+
+QTabBar::tab:right:!selected {
+    margin-left: 3px;
+}
+
+QTabBar::tab:left, QTabBar::tab:right {
+    min-height: 8ex;
+    margin-bottom: -1px;
+    padding: 10px 5px 10px 5px;
+}
+
+QTabBar::tab:left:selected {
+    border-left-color: none;
+}
+
+QTabBar::tab:right:selected {
+    border-right-color: none;
+}
+
+QTabBar::tab:left:last, QTabBar::tab:right:last,
+QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
+    margin-bottom: 0;
+}</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
@@ -111,69 +198,337 @@ QTabBar::tab:only-one {
      <attribute name="title">
       <string>HOME</string>
      </attribute>
+     <widget class="QTableWidget" name="ch_gr_1">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>40</y>
+        <width>450</width>
+        <height>360</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>6</pointsize>
+       </font>
+      </property>
+     </widget>
+     <widget class="QTableWidget" name="ch_gr_2">
+      <property name="geometry">
+       <rect>
+        <x>544</x>
+        <y>40</y>
+        <width>450</width>
+        <height>360</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>6</pointsize>
+       </font>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="setting">
      <attribute name="title">
-      <string>Settings</string>
+      <string>SETTINGS</string>
      </attribute>
+     <widget class="QGroupBox" name="h_time_set">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>32</y>
+        <width>480</width>
+        <height>370</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Hydration Time Settings</string>
+      </property>
+      <widget class="QTimeEdit" name="set_hydration_time">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>120</y>
+         <width>250</width>
+         <height>100</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>-1</pointsize>
+         <weight>75</weight>
+         <italic>false</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QTimeEdit{
+font: bold 50px;
+}</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="h_time_set_2">
+       <property name="geometry">
+        <rect>
+         <x>490</x>
+         <y>10</y>
+         <width>400</width>
+         <height>360</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Hydration Time settings</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>99</x>
+         <y>304</y>
+         <width>251</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="hydration_start">
+          <property name="text">
+           <string>START</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="hydration_stop">
+          <property name="text">
+           <string>STOP</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="bias_settings">
+      <property name="geometry">
+       <rect>
+        <x>594</x>
+        <y>30</y>
+        <width>390</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Bias setting</string>
+      </property>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>112</x>
+         <y>30</y>
+         <width>251</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="hydration_start_2">
+          <property name="text">
+           <string>ON</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="hydration_stop_2">
+          <property name="text">
+           <string>OFF</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="pump_motor_setting">
+      <property name="geometry">
+       <rect>
+        <x>594</x>
+        <y>107</y>
+        <width>390</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Pump motor</string>
+      </property>
+      <widget class="QWidget" name="layoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>112</x>
+         <y>30</y>
+         <width>251</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="hydration_start_3">
+          <property name="text">
+           <string>START</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="hydration_stop_3">
+          <property name="text">
+           <string>STOP</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="valve_settings">
+      <property name="geometry">
+       <rect>
+        <x>594</x>
+        <y>180</y>
+        <width>390</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Valve</string>
+      </property>
+      <widget class="QWidget" name="layoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>113</x>
+         <y>30</y>
+         <width>251</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="hydration_start_4">
+          <property name="text">
+           <string>OPEN</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="hydration_stop_4">
+          <property name="text">
+           <string>CLOSE</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="flow_control_settings">
+      <property name="geometry">
+       <rect>
+        <x>594</x>
+        <y>258</y>
+        <width>390</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Flow Control</string>
+      </property>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>109</x>
+         <y>33</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>ml/min </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="hydration_stop_5">
+       <property name="geometry">
+        <rect>
+         <x>244</x>
+         <y>34</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Calibration</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="adc_calibration">
+      <property name="geometry">
+       <rect>
+        <x>594</x>
+        <y>330</y>
+        <width>390</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>7</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>ADC Calibration</string>
+      </property>
+      <widget class="QPushButton" name="hydration_stop_6">
+       <property name="geometry">
+        <rect>
+         <x>245</x>
+         <y>35</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Calibration</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
     <widget class="QWidget" name="system">
      <attribute name="title">
-      <string>System</string>
+      <string>SYSTEM</string>
      </attribute>
     </widget>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>341</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLabel" name="status">
-       <property name="text">
-        <string>Status : Ready</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="residual_time">
-       <property name="text">
-        <string>Remain Time : </string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>602</x>
-      <y>10</y>
-      <width>391</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLabel" name="start_time">
-       <property name="text">
-        <string>Start Time :</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="end_time">
-       <property name="text">
-        <string>End Time :</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </widget>
   </widget>
  </widget>
