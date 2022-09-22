@@ -11,9 +11,8 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-
-#define LABEL_FONT_SIZE_RESETTTING 1.5
-#define TAB_FONT_SIZE_RESETTTING   1.6
+class ads1120;
+class slf3s1300f;
 
 class MainWindow : public QMainWindow
 {
@@ -30,8 +29,8 @@ private slots:
 private:    
     Ui::MainWindow *ui;
     QTimer *timer_sec;
-
-    QStandardItemModel *model;
+    ads1120 *m_adc;
+    slf3s1300f *m_flowSensor;
 
 };
 

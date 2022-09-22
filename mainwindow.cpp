@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDebug>
+#include "adc/ads1120.h"
+#include "flow-sensor/slf3s1300f.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -7,17 +10,53 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     Init();
 
-    timer_sec = new QTimer(this);                           //display system time
-    QObject::connect(timer_sec, SIGNAL(timeout()), this, SLOT(Display_CurrentTime()));
-    timer_sec->start(1000);
+    /*ADC operation test*/
+#if 0
+    m_adc = new ads1120;
+
+    m_adc->begin(ADS1120_SPI_CS, ADS1120_SPI_DRDY);
+    m_adc->setGain(1);
+    m_adc->setDataRate(0x0);
+    m_adc->setOpMode(0x0);
+    m_adc->setConversionMode(0x0);
+    m_adc->setVoltageRef(0x1);
+    m_adc->setDRDYmode(0);
+    m_adc->setTemperatureMode(0x0);
+
+    /* CH0 : 0x8
+     * CH1 : 0x9
+     * CH2 : 0xA
+     * CH3 : 0xB
+    */
+
+    m_adc->setMultiplexer(0x08);
+    quint16 value_a0 = m_adc->readADC_Single();
+
+    qDebug()<<"read adc Value :" <<value_a0;
+
+    m_adc->setMultiplexer(0x09);
+    quint16 value_a1 = m_adc->readADC_Single();
+
+    qDebug()<<"read adc Value :" <<value_a1;
+
+#endif
+
+#if 1
+
+        m_flowSensor = new slf3s1300f;
+
+        m_flowSensor->init();
+        m_flowSensor->operation(slf3s1300f::SOFT_RESET);
+        m_flowSensor->operation(slf3s1300f::READ_PRODUCT_ID);
+        m_flowSensor->operation(slf3s1300f::START_MEASURE_ALCHOL);
+
+#endif
 }
 
 void MainWindow::Init()
 {
-
     /* Create MainWindow display label*/
     QFont font_type_1, font_type_2;
     font_type_1.setPointSize(font_type_1.pointSize()*0.5);
@@ -45,7 +84,7 @@ void MainWindow::Init()
     /* sensor card hydration status table */
     QStringList table_header;
 
-    /* CH 1 ~ 8 */
+    /* CH 1 ~ CH 8 */
     ui->ch_gr_1->setColumnCount(3);
     ui->ch_gr_1->setColumnWidth(0,95);
     ui->ch_gr_1->setColumnWidth(1,150);
@@ -65,7 +104,7 @@ void MainWindow::Init()
     ui->ch_gr_1->setFocusPolicy(Qt::NoFocus);
     ui->ch_gr_1->setSelectionMode(QAbstractItemView::NoSelection);
 
-    /* CH 2 ~ 16 */
+    /* CH 2 ~ CH 16 */
     ui->ch_gr_2->setColumnCount(3);
     ui->ch_gr_2->setColumnWidth(0,95);
     ui->ch_gr_2->setColumnWidth(1,150);
@@ -85,11 +124,19 @@ void MainWindow::Init()
     ui->ch_gr_2->setFocusPolicy(Qt::NoFocus);
     ui->ch_gr_2->setSelectionMode(QAbstractItemView::NoSelection);
 
-    /*settings tab*/
+    /*settings hydration time*/
     ui->set_hydration_time->setMaximumTime(QTime(48,00));
     ui->set_hydration_time->setDisplayFormat("hh:mm");
     ui->set_hydration_time->setTime(QTime(12,00));
 
+    /*test mode setting*/
+    ui->flow_status->setFont(font_type_1);
+    ui->flow_status->setStyleSheet("background-color: rgb(251, 176, 206);");
+
+    /*1 sec timer start*/
+    timer_sec = new QTimer(this);                           //display system time
+    QObject::connect(timer_sec, SIGNAL(timeout()), this, SLOT(Display_CurrentTime()));
+    timer_sec->start(1000);
 }
 
 

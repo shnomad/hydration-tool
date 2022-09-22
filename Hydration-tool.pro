@@ -16,11 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    adc/ads1120.cpp \
+    flow-sensor/slf3s1300f.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    adc/ads1120.h \
+    flow-sensor/slf3s1300f.h \
     mainwindow.h
+
+INCLUDEPATH +=/opt/Rpi4/sysroot/usr/local/include
+LIBS += -L/opt/Rpi4/sysroot/usr/local/lib -lbcm2835
 
 FORMS += \
     mainwindow.ui
