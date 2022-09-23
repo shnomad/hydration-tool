@@ -68,16 +68,18 @@ void MainWindow::Init()
     ui->tabWidget->setFont(font_type_2);
 
     ui->system_current_time->setFont(font_type_1);
+    ui->hydration_start_label->setFont(font_type_2);
+    ui->hydration_end_label->setFont(font_type_2);
     ui->hydration_start_time->setFont(font_type_2);
     ui->hydration_end_time->setFont(font_type_2);
 
     ui->hydration_status->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
     ui->hydration_countdown->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
     ui->hydration_start_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
-    ui->hydration_start_time->setText("Start Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+    ui->hydration_start_label->setText("Start Time");
 
     ui->hydration_end_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
-    ui->hydration_end_time->setText("End Time: " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+    ui->hydration_end_label->setText("End Time");
 
     ui->hydration_start->setFont(font_type_2);
     ui->hydration_stop->setFont(font_type_2);
@@ -138,10 +140,14 @@ void MainWindow::Init()
 
     /*Create flow status table */
 
-    /*1 sec timer start*/
+    /*1 sec timer for Current Clock*/
     timer_sec = new QTimer(this);                           //display system time
     QObject::connect(timer_sec, SIGNAL(timeout()), this, SLOT(Display_CurrentTime()));
     timer_sec->start(1000);
+
+    /*1 sec timer for hydration count down*/
+    m_hydration_count_down = new QTimer(this);
+    QObject::connect(m_hydration_count_down, SIGNAL(timeout()), this, SLOT(Display_Hydration_CountDown()));
 }
 
 void MainWindow::Set_Peripheral()
@@ -220,18 +226,88 @@ void MainWindow::Display_FlowSensor(char *flow_data)
     ui->exp_smoothing->setText("Exponential smoothing active :" +QString::number(exp_smoothing_active));
 }
 
+void MainWindow::Display_Hydration_CountDown()
+{
+    hydration_count_down_sec--;
+    ui->hydration_countdown->setText(Seconds_To_Time(hydration_count_down_sec));
+}
+
 void MainWindow::on_hydration_start_clicked()
 {
     m_flow_sensor->start(1000);
+    m_hydration_count_down->start(1000);
 
     ui->hydration_start->setStyleSheet("background-color:rgb(0,100,0)");
     ui->hydration_stop->setStyleSheet("default");
+
+    /*Update Hydration Start Time*/
+     ui->hydration_start_time->setText(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+     hydration_start_time_sec = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+    /*Update Hydration End Time*/
+     hydration_end_time_sec = hydration_start_time_sec +  hydration_count_down_sec;
+     ui->hydration_end_time->setText(QDateTime::fromTime_t(hydration_end_time_sec).toLocalTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+
+     /*Funcion Setting disable */
+     Function_Disable(true);
+
 }
 
 void MainWindow::on_hydration_stop_clicked()
 {
     m_flow_sensor->stop();
+    m_hydration_count_down->stop();
     ui->hydration_start->setStyleSheet("default");
+
+    /*Funcion Setting disable */
+    Function_Disable(false);
+}
+
+void MainWindow::on_adc_cal_clicked()
+{
+
+}
+
+void MainWindow::on_set_hydration_time_userTimeChanged(const QTime &time)
+{
+    hydration_count_down_sec = QTime(0,0).secsTo(time);
+    ui->hydration_countdown->setText(time.toString());
+
+    /*Update Hydration Start Time*/
+     ui->hydration_start_time->setText(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+
+     hydration_start_time_sec = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+    /*Update Hydration End Time*/
+     hydration_end_time_sec = hydration_start_time_sec +  hydration_count_down_sec;
+     ui->hydration_end_time->setText(QDateTime::fromTime_t(hydration_end_time_sec).toLocalTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+}
+
+QString MainWindow::Seconds_To_Time(quint64 sec)
+{
+    int seconds = sec % 60;
+    int minutes = (sec / 60) % 60;
+    int hours = (sec / 60 / 60);
+
+    QString timeString = QString("%1:%2:%3")
+      .arg(hours, 2, 10, QChar('0'))
+      .arg(minutes, 2, 10, QChar('0'))
+      .arg(seconds, 2, 10, QChar('0'));
+
+    return timeString;
+}
+
+void MainWindow::Function_Disable(bool OnOff)
+{
+    ui->set_hydration_time->setDisabled(OnOff);
+    ui->adc_cal->setDisabled(OnOff);
+    ui->bias_on->setDisabled(OnOff);
+    ui->bias_off->setDisabled(OnOff);
+    ui->pump_start->setDisabled(OnOff);
+    ui->pump_stop->setDisabled(OnOff);
+    ui->valve_open->setDisabled(OnOff);
+    ui->valve_close->setDisabled(OnOff);
+    ui->flow_cal->setDisabled(OnOff);
 }
 
 MainWindow::~MainWindow()

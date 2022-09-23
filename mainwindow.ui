@@ -25,56 +25,56 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="hydration_status">
+   <widget class="QLabel" name="hydration_status_label">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>400</width>
+      <width>150</width>
       <height>40</height>
      </rect>
     </property>
     <property name="text">
-     <string>Status : READY</string>
+     <string>Status</string>
     </property>
    </widget>
-   <widget class="QLabel" name="hydration_countdown">
+   <widget class="QLabel" name="time_label">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>58</y>
-      <width>400</width>
+      <width>120</width>
       <height>40</height>
      </rect>
     </property>
     <property name="text">
-     <string>Remain Time : 12:00</string>
+     <string>Remain Time : </string>
     </property>
    </widget>
-   <widget class="QLabel" name="hydration_start_time">
+   <widget class="QLabel" name="hydration_start_label">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>10</y>
-      <width>420</width>
+      <x>562</x>
+      <y>15</y>
+      <width>130</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start Time :</string>
+     <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="hydration_end_time">
+   <widget class="QLabel" name="hydration_end_label">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>50</y>
-      <width>420</width>
+      <x>562</x>
+      <y>55</y>
+      <width>130</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
-     <string>End Time :</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLabel" name="system_current_time">
@@ -475,7 +475,7 @@ font: bold 50px;
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="adc_cal_2">
+      <widget class="QPushButton" name="flow_cal">
        <property name="geometry">
         <rect>
          <x>277</x>
@@ -635,6 +635,58 @@ font: bold 50px;
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="hydration_countdown">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>58</y>
+      <width>165</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_start_time">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>15</y>
+      <width>320</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_end_time">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>55</y>
+      <width>320</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hydration_status">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>10</y>
+      <width>165</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
  </widget>
