@@ -46,16 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 #endif
 
-#if 0
-
-        m_flowSensor = new slf3s1300f;
-
-        m_flowSensor->init();
-        m_flowSensor->operation(slf3s1300f::SOFT_RESET);
-        m_flowSensor->operation(slf3s1300f::READ_PRODUCT_ID);
-        m_flowSensor->operation(slf3s1300f::START_MEASURE_ALCHOL);
-
-#endif
 }
 
 void MainWindow::Init()
@@ -101,13 +91,21 @@ void MainWindow::Init()
     ui->ch_gr_1->setRowCount(8);
     for(quint8 row_count=0; row_count<8; row_count++)
     {
-       ui->ch_gr_1->setRowHeight(row_count, 40);
+       ui->ch_gr_1->setRowHeight(row_count, 40);       
     }
 
     ui->ch_gr_1->verticalHeader()->setVisible(false);
     ui->ch_gr_1->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ch_gr_1->setFocusPolicy(Qt::NoFocus);
     ui->ch_gr_1->setSelectionMode(QAbstractItemView::NoSelection);
+
+    for(quint8 row_count=0; row_count<8; row_count++)
+    {
+        QTableWidgetItem *pCell = new QTableWidgetItem;
+        pCell->setText(QString::number(row_count+1));
+        pCell->setTextAlignment(Qt::AlignCenter);
+        ui->ch_gr_1->setItem(row_count, 0, pCell);
+    }
 
     /* CH 2 ~ CH 16 */
     ui->ch_gr_2->setColumnCount(3);
@@ -128,6 +126,14 @@ void MainWindow::Init()
     ui->ch_gr_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ch_gr_2->setFocusPolicy(Qt::NoFocus);
     ui->ch_gr_2->setSelectionMode(QAbstractItemView::NoSelection);
+
+    for(quint8 row_count=0; row_count<8; row_count++)
+    {
+        QTableWidgetItem *pCell = new QTableWidgetItem;
+        pCell->setText(QString::number(row_count+9));
+        pCell->setTextAlignment(Qt::AlignCenter);
+        ui->ch_gr_2->setItem(row_count, 0, pCell);
+    }
 
     /*settings hydration time*/
     ui->set_hydration_time->setMaximumTime(QTime(48,00));
@@ -228,8 +234,15 @@ void MainWindow::Display_FlowSensor(char *flow_data)
 
 void MainWindow::Display_Hydration_CountDown()
 {
-    hydration_count_down_sec--;
-    ui->hydration_countdown->setText(Seconds_To_Time(hydration_count_down_sec));
+    if(hydration_count_down_sec == 0)
+    {
+        on_hydration_stop_clicked();
+    }
+    else
+    {
+        hydration_count_down_sec--;
+        ui->hydration_countdown->setText(Seconds_To_Time(hydration_count_down_sec));
+    }
 }
 
 void MainWindow::on_hydration_start_clicked()
@@ -261,6 +274,10 @@ void MainWindow::on_hydration_stop_clicked()
 
     /*Funcion Setting disable */
     Function_Disable(false);
+
+    /*Get last hydration Time value and restore*/
+    ui->hydration_countdown->setText(ui->set_hydration_time->time().toString());
+    hydration_count_down_sec =QTime(0,0).secsTo(ui->set_hydration_time->time());
 }
 
 void MainWindow::on_adc_cal_clicked()
@@ -270,17 +287,23 @@ void MainWindow::on_adc_cal_clicked()
 
 void MainWindow::on_set_hydration_time_userTimeChanged(const QTime &time)
 {
+
+    QObject *obj = this->sender();
+
+    q_check_ptr(obj);
+    qDebug() << "objClass ::" << obj->metaObject()->className();
+
     hydration_count_down_sec = QTime(0,0).secsTo(time);
     ui->hydration_countdown->setText(time.toString());
 
-    /*Update Hydration Start Time*/
-     ui->hydration_start_time->setText(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+   /*Update Hydration Start Time*/
+    ui->hydration_start_time->setText(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
 
-     hydration_start_time_sec = QDateTime::currentDateTime().toSecsSinceEpoch();
+    hydration_start_time_sec = QDateTime::currentDateTime().toSecsSinceEpoch();
 
-    /*Update Hydration End Time*/
-     hydration_end_time_sec = hydration_start_time_sec +  hydration_count_down_sec;
-     ui->hydration_end_time->setText(QDateTime::fromTime_t(hydration_end_time_sec).toLocalTime().toString("yyyy.MM.dd hh:mm:ss ap"));
+   /*Update Hydration End Time*/
+    hydration_end_time_sec = hydration_start_time_sec +  hydration_count_down_sec;
+    ui->hydration_end_time->setText(QDateTime::fromTime_t(hydration_end_time_sec).toLocalTime().toString("yyyy.MM.dd hh:mm:ss ap"));
 }
 
 QString MainWindow::Seconds_To_Time(quint64 sec)
