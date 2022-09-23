@@ -2,6 +2,7 @@
 #define SLF3S1300F_H
 
 #include <QObject>
+#include <QTimer>
 #include "bcm2835.h"
 
 #define SLAVE_ADDRESS 0x08
@@ -37,6 +38,7 @@ public:
     void read_data();
 
 signals:
+    void sig_flow_sensor_read(char *);
 
 public slots:
 

@@ -4,8 +4,7 @@
 #include <QMainWindow>
 #include <QDateTime>
 #include <QTimer>
-#include <QStandardItemModel>
-#include <QHeaderView>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,15 +21,26 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();    
     void Init();
+    void Set_Peripheral();
+
+signals:
 
 private slots:
     void Display_CurrentTime();
+    void Read_FlowSensor();
+    void Display_FlowSensor(char *);
 
-private:    
+    void on_hydration_start_clicked();
+
+    void on_hydration_stop_clicked();
+
+private:
     Ui::MainWindow *ui;
     QTimer *timer_sec;
     ads1120 *m_adc;
     slf3s1300f *m_flowSensor;
+
+    QTimer *m_flow_sensor, m_adc_read;
 
 };
 

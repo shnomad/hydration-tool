@@ -11,8 +11,7 @@ slf3s1300f::slf3s1300f(QObject *parent) : QObject(parent)
    if(bcm2835_i2c_begin())
       qDebug()<<"bcm2835 I2C init success";
    else
-      exit(0);
-
+      exit(0);   
 }
 
 void slf3s1300f::init()
@@ -20,7 +19,6 @@ void slf3s1300f::init()
     bcm2835_i2c_setSlaveAddress(SLAVE_ADDRESS);  //I2C address
     bcm2835_i2c_setClockDivider(CLOCK_DIVIDE);
 }
-
 
 quint32 slf3s1300f::operation(command cmd)
 {
@@ -105,24 +103,22 @@ quint32 slf3s1300f::operation(command cmd)
     {                
         result = bcm2835_i2c_write(cmd_buf, cmd_length);
 
-        for(;;)
-        {
-            bcm2835_delay(300);
-            result = bcm2835_i2c_read(recv_buf,9);
+        bcm2835_delay(300);
+        result = bcm2835_i2c_read(recv_buf,9);
 
-            flow_rate = recv_buf[0]<< 8 | recv_buf[1];
-            Temp = recv_buf[3]<< 8 | recv_buf[4];
-            air_in_line_flag = recv_buf[7] & 0x01;
-            high_flow_flag = recv_buf[7] & 0x02;
-            exp_smoothing_active = recv_buf[7] & 0x10;
+        flow_rate = recv_buf[0]<< 8 | recv_buf[1];
+        Temp = recv_buf[3]<< 8 | recv_buf[4];
+        air_in_line_flag = recv_buf[7] & 0x01;
+        high_flow_flag = recv_buf[7] & 0x02;
+        exp_smoothing_active = recv_buf[7] & 0x10;
 
-            qDebug()<<"flow_rate :"<<flow_rate/500<<"\n";
-            qDebug()<<"Temperature :"<<Temp/200<<"\n";
-            qDebug()<<"air_in_line_flag :"<<air_in_line_flag<<"\n";
-            qDebug()<<"high_flow_flag :"<<high_flow_flag<<"\n";
-            qDebug()<<"exp_smoothing_active :"<<exp_smoothing_active<<"\n";
-        }
+        qDebug()<<"flow_rate :"<<flow_rate<<"\n";
+        qDebug()<<"Temperature :"<<Temp<<"\n";
+        qDebug()<<"air_in_line_flag :"<<air_in_line_flag<<"\n";
+        qDebug()<<"high_flow_flag :"<<high_flow_flag<<"\n";
+        qDebug()<<"exp_smoothing_active :"<<exp_smoothing_active<<"\n";
 
+        emit sig_flow_sensor_read(recv_buf);
     }
 
     memset(cmd_buf,0x0, sizeof (cmd_buf));
