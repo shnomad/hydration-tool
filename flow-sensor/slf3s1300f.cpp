@@ -12,6 +12,9 @@ slf3s1300f::slf3s1300f(QObject *parent) : QObject(parent)
       qDebug()<<"bcm2835 I2C init success";
    else
       exit(0);   
+
+   qRegisterMetaType<flow_info>();
+
 }
 
 void slf3s1300f::init()
@@ -106,19 +109,48 @@ quint32 slf3s1300f::operation(command cmd)
         bcm2835_delay(300);
         result = bcm2835_i2c_read(recv_buf,9);
 
-        flow_rate = recv_buf[0]<< 8 | recv_buf[1];
-        Temp = recv_buf[3]<< 8 | recv_buf[4];
-        air_in_line_flag = recv_buf[7] & 0x01;
-        high_flow_flag = recv_buf[7] & 0x02;
-        exp_smoothing_active = recv_buf[7] & 0x10;
+        float flow_rate, Temp;
 
-        qDebug()<<"flow_rate :"<<flow_rate<<"\n";
-        qDebug()<<"Temperature :"<<Temp<<"\n";
-        qDebug()<<"air_in_line_flag :"<<air_in_line_flag<<"\n";
-        qDebug()<<"high_flow_flag :"<<high_flow_flag<<"\n";
-        qDebug()<<"exp_smoothing_active :"<<exp_smoothing_active<<"\n";
+        quint16  flow_rate_tmp = recv_buf[0]<< 8 | recv_buf[1];
+        quint16  Temp_tmp = recv_buf[3]<< 8 | recv_buf[4];
+        bool   air_in_line_flag = recv_buf[7] & 0x01;
+        bool   high_flow_flag = recv_buf[7] & 0x02;
+        bool   exp_smoothing_active = recv_buf[7] & 0x10;
 
-        emit sig_flow_sensor_read(recv_buf);
+        if(flow_rate_tmp<32768)
+        {
+            flow_rate = (float)(flow_rate_tmp);
+            flow_rate = flow_rate/500;
+        }
+        else
+        {
+            flow_rate_tmp = ~(flow_rate_tmp);
+            flow_rate_tmp +=1;
+            flow_rate = (float)(flow_rate_tmp);
+            flow_rate = -(flow_rate/500);
+        }
+
+        if(Temp_tmp<32768)
+        {
+            Temp = (float)Temp_tmp;
+            Temp = Temp/200;
+        }
+        else
+        {
+            Temp_tmp = ~(Temp_tmp);
+            Temp_tmp +=1;
+            Temp = (float)(Temp_tmp);
+            Temp = -(Temp/200);
+        }
+
+        m_flow_result.flow = flow_rate;
+        m_flow_result.temp = Temp;
+        m_flow_result.air_in_line_flag = air_in_line_flag;
+        m_flow_result.high_flow_flag = high_flow_flag;
+        m_flow_result.exp_smoothing_active = exp_smoothing_active;
+
+        emit sig_flow_sensor_read(m_flow_result);
+
     }
 
     memset(cmd_buf,0x0, sizeof (cmd_buf));

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include "bcm2835.h"
+#include "common.h"
 
 #define SLAVE_ADDRESS 0x08
 #define CLOCK_DIVIDE  BCM2835_I2C_CLOCK_DIVIDER_2500
@@ -38,7 +39,9 @@ public:
     void read_data();
 
 signals:
-    void sig_flow_sensor_read(char *);
+//    void sig_flow_sensor_read(char *);
+      void sig_flow_sensor_read(flow_info);
+
 
 public slots:
 
@@ -49,8 +52,10 @@ private:
     char recv_buf[18] = {0x0,};
     char cmd_buf[4] = {0x0,};
 
-     float flow_rate, Temp;
-     bool air_in_line_flag, high_flow_flag, exp_smoothing_active;
+    float flow_rate, Temp;
+    bool air_in_line_flag, high_flow_flag, exp_smoothing_active;
+
+    flow_info m_flow_result;
 };
 
 #endif // SLF3S1300F_H

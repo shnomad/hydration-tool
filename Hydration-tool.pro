@@ -23,6 +23,8 @@ SOURCES += \
 
 HEADERS += \
     adc/ads1120.h \
+    builddatetime.h \
+    common.h \
     flow-sensor/slf3s1300f.h \
     mainwindow.h
 

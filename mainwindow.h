@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QThread>
+#include "common.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +22,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();    
     void Init();
+    void System_Information();
     void Set_Peripheral();
     void Function_Disable(bool);
     QString Seconds_To_Time(quint64);
@@ -30,14 +32,15 @@ signals:
 private slots:
     void Display_CurrentTime();
     void Read_FlowSensor();
-    void Display_FlowSensor(char *);
+//    void Display_FlowSensor(char *);
+    void Display_FlowSensor(flow_info);
     void Display_Hydration_CountDown();
-
     void on_hydration_start_clicked();
     void on_hydration_stop_clicked();
     void on_set_hydration_time_userTimeChanged(const QTime &time);
-
     void on_adc_cal_clicked();
+    void on_reboot_clicked();
+    void on_power_off_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -48,7 +51,6 @@ private:
 
     quint32 hydration_count_down_sec =0;
     quint64 hydration_start_time_sec =0, hydration_end_time_sec=0;
-
 };
 
 #endif // MAINWINDOW_H

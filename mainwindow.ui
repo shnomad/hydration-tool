@@ -48,33 +48,39 @@
      </rect>
     </property>
     <property name="text">
-     <string>Remain Time : </string>
+     <string>Remain Time</string>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_start_label">
     <property name="geometry">
      <rect>
-      <x>562</x>
+      <x>540</x>
       <y>15</y>
       <width>130</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
+     <string>Start Time</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_end_label">
     <property name="geometry">
      <rect>
-      <x>562</x>
+      <x>540</x>
       <y>55</y>
       <width>130</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
+     <string>End Time</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="system_current_time">
@@ -192,7 +198,7 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
 }</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="home">
      <attribute name="title">
@@ -209,7 +215,7 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
       </property>
       <property name="font">
        <font>
-        <pointsize>6</pointsize>
+        <pointsize>10</pointsize>
        </font>
       </property>
      </widget>
@@ -224,7 +230,7 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
       </property>
       <property name="font">
        <font>
-        <pointsize>6</pointsize>
+        <pointsize>10</pointsize>
        </font>
       </property>
      </widget>
@@ -239,12 +245,12 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
         <x>5</x>
         <y>12</y>
         <width>480</width>
-        <height>310</height>
+        <height>280</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>12</pointsize>
        </font>
       </property>
       <property name="title">
@@ -285,7 +291,7 @@ font: bold 50px;
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>11</pointsize>
        </font>
       </property>
       <property name="title">
@@ -329,7 +335,7 @@ font: bold 50px;
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>11</pointsize>
        </font>
       </property>
       <property name="title">
@@ -373,7 +379,7 @@ font: bold 50px;
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>11</pointsize>
        </font>
       </property>
       <property name="title">
@@ -417,7 +423,7 @@ font: bold 50px;
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>11</pointsize>
        </font>
       </property>
       <property name="title">
@@ -432,6 +438,11 @@ font: bold 50px;
          <height>21</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -444,6 +455,11 @@ font: bold 50px;
          <width>200</width>
          <height>21</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
        </property>
        <property name="text">
         <string/>
@@ -458,6 +474,11 @@ font: bold 50px;
          <height>21</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -470,6 +491,11 @@ font: bold 50px;
          <width>291</width>
          <height>21</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
        </property>
        <property name="text">
         <string/>
@@ -499,6 +525,7 @@ font: bold 50px;
        </property>
        <property name="font">
         <font>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -519,6 +546,11 @@ font: bold 50px;
          <height>21</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -534,6 +566,7 @@ font: bold 50px;
        </property>
        <property name="font">
         <font>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -557,7 +590,7 @@ font: bold 50px;
       </property>
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <pointsize>11</pointsize>
        </font>
       </property>
       <property name="title">
@@ -588,26 +621,137 @@ font: bold 50px;
      <attribute name="title">
       <string>SYSTEM</string>
      </attribute>
-     <widget class="QTextEdit" name="sys_info">
+     <widget class="QTextEdit" name="debug_info">
       <property name="geometry">
        <rect>
         <x>22</x>
-        <y>39</y>
+        <y>30</y>
         <width>450</width>
         <height>360</height>
        </rect>
       </property>
      </widget>
-     <widget class="QTextEdit" name="ctl_info">
+     <widget class="QPushButton" name="power_off">
       <property name="geometry">
        <rect>
-        <x>549</x>
-        <y>39</y>
-        <width>450</width>
-        <height>360</height>
+        <x>888</x>
+        <y>374</y>
+        <width>121</width>
+        <height>30</height>
        </rect>
       </property>
+      <property name="text">
+       <string>Power Off</string>
+      </property>
      </widget>
+     <widget class="QPushButton" name="reboot">
+      <property name="geometry">
+       <rect>
+        <x>760</x>
+        <y>374</y>
+        <width>122</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Reboot</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="build_info">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>283</y>
+        <width>420</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Build Date</string>
+      </property>
+      <widget class="QLabel" name="build_date">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>38</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="net_info">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>145</y>
+        <width>420</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Network Information</string>
+      </property>
+      <widget class="QLabel" name="eth">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>35</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>7</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="wifi">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>70</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>7</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <zorder>build_info</zorder>
+     <zorder>debug_info</zorder>
+     <zorder>power_off</zorder>
+     <zorder>reboot</zorder>
+     <zorder>net_info</zorder>
     </widget>
    </widget>
    <widget class="QWidget" name="layoutWidget">
@@ -639,14 +783,17 @@ font: bold 50px;
    <widget class="QLabel" name="hydration_countdown">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>140</x>
       <y>58</y>
-      <width>165</width>
+      <width>130</width>
       <height>40</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_start_time">
@@ -654,12 +801,15 @@ font: bold 50px;
      <rect>
       <x>690</x>
       <y>15</y>
-      <width>320</width>
+      <width>300</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="hydration_end_time">
@@ -667,25 +817,31 @@ font: bold 50px;
      <rect>
       <x>690</x>
       <y>55</y>
-      <width>320</width>
+      <width>300</width>
       <height>35</height>
      </rect>
     </property>
     <property name="text">
      <string/>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="hydration_status">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>140</x>
       <y>10</y>
-      <width>165</width>
+      <width>130</width>
       <height>40</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

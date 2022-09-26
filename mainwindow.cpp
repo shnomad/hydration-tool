@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QProcess>
+#include "builddatetime.h"
 #include "adc/ads1120.h"
 #include "flow-sensor/slf3s1300f.h"
 
@@ -12,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     Init();
+
+    System_Information();
 
     Set_Peripheral();
 
@@ -55,25 +59,13 @@ void MainWindow::Init()
     font_type_1.setPointSize(font_type_1.pointSize()*0.5);
     font_type_2.setPointSize(font_type_2.pointSize()*0.8);
 
-    ui->tabWidget->setFont(font_type_2);
-
-    ui->system_current_time->setFont(font_type_1);
-    ui->hydration_start_label->setFont(font_type_2);
-    ui->hydration_end_label->setFont(font_type_2);
-    ui->hydration_start_time->setFont(font_type_2);
-    ui->hydration_end_time->setFont(font_type_2);
-
     ui->hydration_status->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
     ui->hydration_countdown->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
     ui->hydration_start_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
-    ui->hydration_start_label->setText("Start Time");
-
     ui->hydration_end_time->setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-color: rgb(100,100,100); border-width: 2px; border-radius: 10px;");
-    ui->hydration_end_label->setText("End Time");
 
-    ui->hydration_start->setFont(font_type_2);
-    ui->hydration_stop->setFont(font_type_2);
-
+    ui->reboot->setStyleSheet("color: rgb(58, 134, 255); background-color: white; border: 2px solid rgb(58, 134, 255)");
+    ui->power_off->setStyleSheet("color: rgb(251, 86, 7); background-color: white; border: 2px solid rgb(251, 86, 7)");
 
     /*home tab*/
     /* sensor card hydration status table */
@@ -87,6 +79,7 @@ void MainWindow::Init()
 
     table_header<<"Channel"<<"Bias(mV)"<<"Status";
     ui->ch_gr_1->setHorizontalHeaderLabels(table_header);
+    ui->ch_gr_1->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 12pt; }");
 
     ui->ch_gr_1->setRowCount(8);
     for(quint8 row_count=0; row_count<8; row_count++)
@@ -115,6 +108,7 @@ void MainWindow::Init()
 
     table_header<<"Channel"<<"Bias(mV)"<<"Status";
     ui->ch_gr_2->setHorizontalHeaderLabels(table_header);
+    ui->ch_gr_2->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 12pt; }");
 
     ui->ch_gr_2->setRowCount(8);
     for(quint8 row_count=0; row_count<8; row_count++)
@@ -141,8 +135,6 @@ void MainWindow::Init()
     ui->set_hydration_time->setTime(QTime(12,00));
 
     /*test mode setting*/
-//  ui->flow_rate->setFont(font_type_1);
-//  ui->flow_rate->setStyleSheet("background-color: rgb(251, 176, 206);");
 
     /*Create flow status table */
 
@@ -175,9 +167,15 @@ void MainWindow::Set_Peripheral()
    /*Create PWM Motor Control*/
 
    /*Create Signal/Slot Connection*/
-    connect(m_flowSensor,SIGNAL(sig_flow_sensor_read(char *)), this, SLOT(Display_FlowSensor(char *)));
+    connect(m_flowSensor,SIGNAL(sig_flow_sensor_read(flow_info)), this, SLOT(Display_FlowSensor(flow_info)));
 
 }
+
+void MainWindow::System_Information()
+{
+    ui->build_date->setText(build_date);
+}
+
 
 void MainWindow::Display_CurrentTime()
 {
@@ -189,47 +187,13 @@ void MainWindow::Read_FlowSensor()
     m_flowSensor->operation(slf3s1300f::START_MEASURE_WATER);
 }
 
-void MainWindow::Display_FlowSensor(char *flow_data)
+void MainWindow::Display_FlowSensor(flow_info flow_sensing_result)
 {
-    float flow_rate, Temp;
-
-    quint16  flow_rate_tmp = flow_data[0]<< 8 | flow_data[1];
-    quint16  Temp_tmp = flow_data[3]<< 8 | flow_data[4];
-    bool   air_in_line_flag = flow_data[7] & 0x01;
-    bool   high_flow_flag = flow_data[7] & 0x02;
-    bool   exp_smoothing_active = flow_data[7] & 0x10;
-
-    if(flow_rate_tmp<32768)
-    {
-        flow_rate = (float)(flow_rate_tmp);
-        flow_rate = flow_rate/500;
-    }
-    else
-    {
-        flow_rate_tmp = ~(flow_rate_tmp);
-        flow_rate_tmp +=1;
-        flow_rate = (float)(flow_rate_tmp);
-        flow_rate = -(flow_rate/500);
-    }
-
-    if(Temp_tmp<32768)
-    {
-        Temp = (float)Temp_tmp;
-        Temp = Temp/200;
-    }
-    else
-    {
-        Temp_tmp = ~(Temp_tmp);
-        Temp_tmp +=1;
-        Temp = (float)(Temp_tmp);
-        Temp = -(Temp/200);
-    }
-
-    ui->flow->setText("Flow : " + QString::number(flow_rate));
-    ui->temp->setText("Temp : " + QString::number(Temp));
-    ui->high_flow->setText("High Flow Signal :" + QString::number(air_in_line_flag));
-    ui->air_in_line->setText("Air-in-line flag :" + QString::number(high_flow_flag));
-    ui->exp_smoothing->setText("Exponential smoothing active :" +QString::number(exp_smoothing_active));
+    ui->flow->setText("Flow : " + QString::number(flow_sensing_result.flow));
+    ui->temp->setText("Temp : " + QString::number(flow_sensing_result.temp));
+    ui->high_flow->setText("High Flow Signal :" + QString::number(flow_sensing_result.high_flow_flag));
+    ui->air_in_line->setText("Air-in-line flag :" + QString::number(flow_sensing_result.air_in_line_flag));
+    ui->exp_smoothing->setText("Exponential smoothing active :" +QString::number(flow_sensing_result.exp_smoothing_active));
 }
 
 void MainWindow::Display_Hydration_CountDown()
@@ -298,7 +262,6 @@ void MainWindow::on_set_hydration_time_userTimeChanged(const QTime &time)
 
    /*Update Hydration Start Time*/
     ui->hydration_start_time->setText(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ap"));
-
     hydration_start_time_sec = QDateTime::currentDateTime().toSecsSinceEpoch();
 
    /*Update Hydration End Time*/
@@ -331,6 +294,16 @@ void MainWindow::Function_Disable(bool OnOff)
     ui->valve_open->setDisabled(OnOff);
     ui->valve_close->setDisabled(OnOff);
     ui->flow_cal->setDisabled(OnOff);
+}
+
+void MainWindow::on_reboot_clicked()
+{
+      QProcess::startDetached("sudo reboot");
+}
+
+void MainWindow::on_power_off_clicked()
+{
+      QProcess::startDetached("sudo poweroff");
 }
 
 MainWindow::~MainWindow()
