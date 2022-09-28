@@ -1,8 +1,31 @@
 #include <QDebug>
 #include "slf3s1300f.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include<fcntl.h>
+#include <linux/i2c-dev.h>
 
 slf3s1300f::slf3s1300f(QObject *parent) : QObject(parent)
 {
+
+#ifndef USE_BCM2835_LIBRARY
+
+    i2cfd  = open("/dev/i2c-0", O_RDWR);
+
+   if(i2cfd<0)
+   {
+       Log()<<"I2C-0 fail!!";
+       exit(0);
+   }
+   else
+   {
+       Log()<<"I2C-0 Success!!";
+       ioctl(i2cfd, I2C_SLAVE, SLAVE_ADDRESS);
+   }
+
+#else
     if(bcm2835_init())
        qDebug()<<"bcm2835 init success";
     else
@@ -11,16 +34,21 @@ slf3s1300f::slf3s1300f(QObject *parent) : QObject(parent)
    if(bcm2835_i2c_begin())
       qDebug()<<"bcm2835 I2C init success";
    else
-      exit(0);   
+      exit(0);      
+#endif
 
    qRegisterMetaType<flow_info>();
-
 }
 
 void slf3s1300f::init()
 {
+#ifndef USE_BCM2835_LIBRARY
+
+
+#else
     bcm2835_i2c_setSlaveAddress(SLAVE_ADDRESS);  //I2C address
     bcm2835_i2c_setClockDivider(CLOCK_DIVIDE);
+#endif
 }
 
 quint32 slf3s1300f::operation(command cmd)
@@ -58,7 +86,11 @@ quint32 slf3s1300f::operation(command cmd)
 
         case SOFT_RESET:
 
+#ifndef USE_BCM2835_LIBRARY
+
+#else
             bcm2835_i2c_setSlaveAddress(0x0);  //I2C address
+#endif
 
             cmd_buf[0] = 0x06;
 
@@ -83,12 +115,23 @@ quint32 slf3s1300f::operation(command cmd)
 
     if(cmd == READ_PRODUCT_ID)
     {
+
+#ifndef USE_BCM2835_LIBRARY
+
+         write(i2cfd,cmd_buf,cmd_length);
+         write(i2cfd,cmd_buf+2,cmd_length);
+
+         read(i2cfd,recv_buf,18);
+
+#else
         result = bcm2835_i2c_write(cmd_buf, cmd_length);
         result = bcm2835_i2c_write(cmd_buf+2, cmd_length);
 
         bcm2835_delay(10);
 
         result = bcm2835_i2c_read(recv_buf,18);
+#endif
+
         product_number = recv_buf[0] <<24  | recv_buf[1] << 16  | recv_buf[3] << 8  | recv_buf[4];
         serial_number = recv_buf[6] << 56  | recv_buf[7] << 48  | recv_buf[9] << 40 | recv_buf[10] << 32 \
                      | recv_buf[12] << 24  | recv_buf[13] << 16 | recv_buf[15] << 8 | recv_buf[16];
@@ -96,18 +139,29 @@ quint32 slf3s1300f::operation(command cmd)
 
     if(cmd == SOFT_RESET)
     {
+#ifndef USE_BCM2835_LIBRARY
+
+#else
         result = bcm2835_i2c_write(cmd_buf, cmd_length);
         bcm2835_i2c_setSlaveAddress(SLAVE_ADDRESS);  //I2C address
-
         bcm2835_delay(100);
+#endif
     }
 
     if(cmd == START_MEASURE_WATER || cmd == START_MEASURE_ALCHOL)
-    {                
+    {
+
+#ifndef USE_BCM2835_LIBRARY
+
+        write(i2cfd,cmd_buf,cmd_length);
+        read(i2cfd,recv_buf,9);
+
+#else
         result = bcm2835_i2c_write(cmd_buf, cmd_length);
 
         bcm2835_delay(300);
         result = bcm2835_i2c_read(recv_buf,9);
+#endif
 
         float flow_rate, Temp;
 
@@ -150,7 +204,6 @@ quint32 slf3s1300f::operation(command cmd)
         m_flow_result.exp_smoothing_active = exp_smoothing_active;
 
         emit sig_flow_sensor_read(m_flow_result);
-
     }
 
     memset(cmd_buf,0x0, sizeof (cmd_buf));
@@ -159,18 +212,15 @@ quint32 slf3s1300f::operation(command cmd)
     return result;
 }
 
-void slf3s1300f::write_command()
-{
-
-}
-
-void slf3s1300f::read_data()
-{
-
-}
-
 slf3s1300f::~slf3s1300f()
 {
+#ifndef USE_BCM2835_LIBRARY
+
+    close(i2cfd);
+
+#else
     bcm2835_i2c_end();
     bcm2835_close();
+
+#endif
 }

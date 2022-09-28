@@ -198,7 +198,7 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
 }</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="home">
      <attribute name="title">
@@ -714,32 +714,32 @@ font: bold 50px;
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>35</y>
+         <y>43</y>
          <width>240</width>
          <height>20</height>
         </rect>
        </property>
        <property name="font">
         <font>
-         <pointsize>7</pointsize>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
         <string/>
        </property>
       </widget>
-      <widget class="QLabel" name="wifi">
+      <widget class="QLabel" name="wlan">
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>70</y>
+         <y>78</y>
          <width>240</width>
          <height>20</height>
         </rect>
        </property>
        <property name="font">
         <font>
-         <pointsize>7</pointsize>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">

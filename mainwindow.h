@@ -32,7 +32,6 @@ signals:
 private slots:
     void Display_CurrentTime();
     void Read_FlowSensor();
-//    void Display_FlowSensor(char *);
     void Display_FlowSensor(flow_info);
     void Display_Hydration_CountDown();
     void on_hydration_start_clicked();

@@ -3,6 +3,10 @@
 
 #include <QDebug>
 #include <QDateTime>
+//#include "bcm2835.h"
+//#include "wiringPi.h"
+//#include "wiringPiI2C.h"
+//#include "wiringPiSPI.h"
 
 #define Log() qDebug() <<"["<<QDateTime::currentDateTime().toString("MM.dd hh:mm:ss") << __PRETTY_FUNCTION__ << __LINE__ << "]"
 

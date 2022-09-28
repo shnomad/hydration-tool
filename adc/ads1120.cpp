@@ -3,6 +3,10 @@
 
 ads1120::ads1120(QObject *parent) : QObject(parent)
 {
+
+#ifndef USE_BCM2835_LIBRARY
+
+#else
     if(bcm2835_init())
        qDebug()<<"bcm2835 init success";
     else
@@ -12,19 +16,26 @@ ads1120::ads1120(QObject *parent) : QObject(parent)
       qDebug()<<"bcm2835 SPI init success";
    else
       exit(0);
+
+#endif
+
 }
 
 void ads1120::writeRegister(uint8_t address, uint8_t value)
 {
 #ifndef USE_BCM2835_LIBRARY
-  digitalWrite(ads1120_CS_PIN, LOW);
-  delay(5);
-  SPI.transfer(CMD_WREG|(address<<2)); // What not setting num bytes?
-  SPI.transfer(value);
-  delay(5);
+
+//  digitalWrite(ads1120_CS_PIN, LOW);
+//  delay(5);
+//  SPI.transfer(CMD_WREG|(address<<2)); // What not setting num bytes?
+//  SPI.transfer(value);
+//  delay(5);
+
   //startSync(); // Send start/sync for continuous conversion mode
   //delayMicroseconds(1); // Delay a minimum of td(SCCS)
-  digitalWrite(ads1120_CS_PIN, HIGHwriteRegister);
+
+//  digitalWrite(ads1120_CS_PIN, HIGHwriteRegister);
+
 #else
 
 //  quint32 reg_data = CMD_WREG|(address<<2);
@@ -34,9 +45,10 @@ void ads1120::writeRegister(uint8_t address, uint8_t value)
 //  cmd_data[0] = (CMD_WREG|(address<<2));
 //  cmd_data[1] = value;
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
-
-    bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
+//    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+//    bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
+    gpio_exp1->write_pin(1,1);
+    gpio_exp1->write_pin(1,0);
 
     bcm2835_delay(5);
 
@@ -45,8 +57,8 @@ void ads1120::writeRegister(uint8_t address, uint8_t value)
 
     bcm2835_delay(5);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
-
+    gpio_exp1->write_pin(1,1);
+//  bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
 //  bcm2835_spi_transfer(quint8(CMD_WREG|(address<<2)));
 //  bcm2835_spi_transfer(value);
 
@@ -56,14 +68,16 @@ void ads1120::writeRegister(uint8_t address, uint8_t value)
 quint8 ads1120::readRegister(uint8_t address)
 {
 #ifndef USE_BCM2835_LIBRARY
-  digitalWrite(ads1120_CS_PIN,LOW);
-  delay(5);
-  SPI.transfer(CMD_RREG|(address<<2)); // What not setting num bytes?
-  uint8_t data = SPI.transfer(SPI_MASTER_DUMMY);
-  delay(5);
-  digitalWrite(ads1120_CS_PIN,HIGH);
 
-  return data;
+//  digitalWrite(ads1120_CS_PIN,LOW);
+//  delay(5);
+//  SPI.transfer(CMD_RREG|(address<<2)); // What not setting num bytes?
+//  uint8_t data = SPI.transfer(SPI_MASTER_DUMMY);
+//  delay(5);
+//  digitalWrite(ads1120_CS_PIN,HIGH);
+
+//  return data;
+
 #else
 
 //  char *cmd_addr, *data;
@@ -78,15 +92,14 @@ quint8 ads1120::readRegister(uint8_t address)
 //  cmd_data[0] = (CMD_RREG|(address<<2));
 //  bcm2835_spi_writenb(cmd_data,0x1);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
-
-    bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
+    gpio_exp1->write_pin(1,0);
+    gpio_exp1->write_pin(1,1);
 
     bcm2835_spi_transfer(CMD_RREG|(address<<2));
 
     quint8 read_reg = bcm2835_spi_transfer(SPI_MASTER_DUMMY);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+    gpio_exp1->write_pin(1,1);
 
     return read_reg;
 
@@ -94,50 +107,51 @@ quint8 ads1120::readRegister(uint8_t address)
 
 }
 
-void ads1120::begin(uint8_t cs_pin, uint8_t drdy_pin)
+//void ads1120::begin(uint8_t cs_pin, uint8_t drdy_pin)
+void ads1120::begin()
 {
 
 #ifndef USE_BCM2835_LIBRARY
   // Set pins up
-  ads1120_CS_PIN = cs_pin;
-  ads1120_DRDY_PIN = drdy_pin;
+//  ads1120_CS_PIN = cs_pin;
+//  ads1120_DRDY_PIN = drdy_pin;
 
   // Configure the SPI interface (CPOL=0, CPHA=1)
-  SPI.begin();
-  SPI.setDataMode(SPI_MODE1);
+//  SPI.begin();
+//  SPI.setDataMode(SPI_MODE1);
 
   // Configure chip select as an output
-  pinMode(ads1120_CS_PIN, OUTPUT);
+//  pinMode(ads1120_CS_PIN, OUTPUT);
 
   // Configure DRDY as as input (mfg wants us to use interrupts)
-  pinMode(ads1120_DRDY_PIN, INPUT);
+//  pinMode(ads1120_DRDY_PIN, INPUT);
 
-  digitalWrite(ads1120_CS_PIN, LOW); // Set CS Low
-  delayMicroseconds(1); // Wait a minimum of td(CSSC)
-  reset(); // Send reset command
-  delayMicroseconds(1);; BCM2835_SPI_CS0// Delay a minimum of 50 us + 32 * tclk
+//  digitalWrite(ads1120_CS_PIN, LOW); // Set CS Low
+//  delayMicroseconds(1); // Wait a minimum of td(CSSC)
+//  reset(); // Send reset command
+//  delayMicroseconds(1);; BCM2835_SPI_CS0// Delay a minimum of 50 us + 32 * tclk
 
   // Sanity check read back (optional)
 
-  startSync(); // Send start/sync for continuous conversion mode
-  delayMicroseconds(1); // Delay a minimum of td(SCCS)
-  digitalWrite(ads1120_CS_PIN, HIGH); // Clear CS to high
-#else
-    /*DRDY pin select, pull up*/
-    bcm2835_gpio_fsel(drdy_pin, BCM2835_GPIO_FSEL_INPT);
-    bcm2835_gpio_set_pud(drdy_pin, BCM2835_GPIO_PUD_UP);
+//  startSync(); // Send start/sync for continuous conversion mode
+//  delayMicroseconds(1); // Delay a minimum of td(SCCS)
+//  digitalWrite(ads1120_CS_PIN, HIGH); // Clear CS to high
 
-    /*CS Pin select*/
-    bcm2835_gpio_fsel(cs_pin, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_write(cs_pin, HIGH);
+#else
+    gpio_exp1 = new IoPi(SLAVE_ADDRESS, true);
+
+    /* CS Pin setting */
+    gpio_exp1->set_port_direction(0, 0x0);
+    gpio_exp1->set_port_direction(1, 0x0);
+
+    gpio_exp1->write_port(0, 0xFF);
+    gpio_exp1->write_port(1, 0xFF);
 
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE1);                   // The default
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_65536); // The default
-//  bcm2835_spi_chipSelect(BCM2835_SPI_CS0);                      // The default
     bcm2835_spi_chipSelect(BCM2835_SPI_CS_NONE);                  // The default
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS_NONE, LOW);  // the default
-//  bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);      // the default
 
     reset();
     bcm2835_delay(10);
@@ -148,16 +162,14 @@ void ads1120::begin(uint8_t cs_pin, uint8_t drdy_pin)
 bool ads1120::isDataReady()
 {
 #ifndef USE_BCM2835_LIBRARY
-    if (digitalRead(ads1120_DRDY_PIN) == HIGH)
-    {
-      return false;
-    }
+
+//    if (digitalRead(ads1120_DRDY_PIN) == HIGH)
+//    {
+//      return false;
+//    }
+
 #else
 
-    if(bcm2835_gpio_lev(ADS1120_SPI_DRDY))
-    {
-        return false;
-    }
 
 #endif
   return true;
@@ -173,23 +185,25 @@ quint8 * ads1120::readADC_Array()
 {
 
 #ifndef USE_BCM2835_LIBRARY
-    digitalWrite(ads1120_CS_PIN, LOW); // Take CS low
-  delayMicroseconds(1); // Minimum of td(CSSC)
 
-  static quint8 dataarray[2];
-  for (int x = 0; x < 2 ; x++)
-  {
-    dataarray[x] = SPI.transfer(SPI_MASTER_DUMMY);
-  }
-  delayMicroseconds(1); // Minimum of td(CSSC)
-  digitalWrite(ads1120_CS_PIN, HIGH);
+//  digitalWrite(ads1120_CS_PIN, LOW); // Take CS low
+//  delayMicroseconds(1); // Minimum of td(CSSC)
 
-  return dataarray;
+//  static quint8 dataarray[2];
+//  for (int x = 0; x < 2 ; x++)
+//  {
+//    dataarray[x] = SPI.transfer(SPI_MASTER_DUMMY);
+//  }
+
+//  delayMicroseconds(1); // Minimum of td(CSSC)
+//  digitalWrite(ads1120_CS_PIN, HIGH);
+
+//  return dataarray;
+
 #else
 
-
-
     static quint8 dataarray[2];
+
     for (int x = 0; x < 2 ; x++)
     {
         dataarray[x] = bcm2835_spi_transfer(SPI_MASTER_DUMMY);
@@ -218,45 +232,37 @@ quint8 * ads1120::readADC_SingleArray()
 {
 
 #ifndef USE_BCM2835_LIBRARY
-  digitalWrite(ads1120_CS_PIN, LOW); // Take CS low
-  delayMicroseconds(1); // Minimum of td(CSSC)
-  SPI.transfer(0x08);
 
-  while(digitalRead(ads1120_DRDY_PIN) == HIGH)
-  {
+//   digitalWrite(ads1120_CS_PIN, LOW); // Take CS low
+//  delayMicroseconds(1); // Minimum of td(CSSC)
+//  SPI.transfer(0x08);
+
+//  while(digitalRead(ads1120_DRDY_PIN) == HIGH)
+//  {
     //Wait to DRDY goes down
     //Not a good thing
     //Code could be stuck here
     //Need a improve later
-  }
+//  }
 
-  static quint8 dataarray[2];
-  for (int x = 0; x < 2 ; x++)
-  {
-    dataarray[x] = SPI.transfer(SPI_MASTER_DUMMY);
-  }
-  delayMicroseconds(1); // Minimum of td(CSSC)
-  digitalWrite(ads1120_CS_PIN, HIGH);
+//  static quint8 dataarray[2];
+//  for (int x = 0; x < 2 ; x++)
+//  {
+//    dataarray[x] = SPI.transfer(SPI_MASTER_DUMMY);
+//  }
+//  delayMicroseconds(1); // Minimum of td(CSSC)
+//  digitalWrite(ads1120_CS_PIN, HIGH);
 
-  return dataarray;
+//  return dataarray;
+
 #else
 
-//   bcm2835_spi_transfer(CMD_START_SYNC);
-//   char cmd[1];
-//   cmd[0] = CMD_START_SYNC;
-//   bcm2835_spi_writenb(cmd,0x1);
-
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
-
-    bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
+    gpio_exp1->write_pin(1,1);
+    gpio_exp1->write_pin(1,0);
 
     bcm2835_delay(1);
 
-    bcm2835_spi_transfer(CMD_START_SYNC);
-
-//  while(bcm2835_gpio_lev(ads1120_SPI_DRDY))
-//  {
-//  }
+    bcm2835_spi_transfer(CMD_START_SYNC);   
 
     bcm2835_delay(100);
 
@@ -271,12 +277,11 @@ quint8 * ads1120::readADC_SingleArray()
 
     bcm2835_delay(1);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+    gpio_exp1->write_pin(1,1);
 
     return dataarray;
 
 #endif
-  bcm2835_delay(10);
 }
 
 quint16 ads1120::convertToValue(quint8 * data)
@@ -290,7 +295,8 @@ double ads1120::convertToTemp(quint8 * data)
   uint16_t conversion = ((data[0])<<8 | (data[1])) >> 2;
 
   // Negative numbers are represented in binary twos complement format
-  if(conversion >= 8192) {
+  if(conversion >= 8192)
+  {
     conversion = (~(conversion-1)) ^ 0xC000;
     return conversion * -0.03125;
   }
@@ -303,20 +309,23 @@ void ads1120::sendCommand(quint8 command)
 
 #ifndef USE_BCM2835_LIBRARY
   // Following Protocentral's code, not sure exactly what's going on here.
-  digitalWrite(ads1120_CS_PIN, LOW);
-  delay(2);
-  digitalWrite(ads1120_CS_PIN, HIGH);
-  delay(2);
-  digitalWrite(ads1120_CS_PIN, LOW);
-  delay(2);
-  SPI.transfer(command);
-  delay(2);
-  digitalWrite(ads1120_CS_PIN, HIGH);
+//  digitalWrite(ads1120_CS_PIN, LOW);
+//  delay(2);
+//  digitalWrite(ads1120_CS_PIN, HIGH);
+//  delay(2);
+//  digitalWrite(ads1120_CS_PIN, LOW);
+//  delay(2);
+//  SPI.transfer(command);
+//  delay(2);
+//  digitalWrite(ads1120_CS_PIN, HIGH);
+
 #else
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+//  bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+//  bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, LOW);
+    gpio_exp1->write_pin(1,1);
+    gpio_exp1->write_pin(1,0);
 
     bcm2835_delay(5);
 
@@ -324,7 +333,8 @@ void ads1120::sendCommand(quint8 command)
 
     bcm2835_delay(5);
 
-    bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
+    gpio_exp1->write_pin(1,1);
+//  bcm2835_gpio_write(ADS1120_SPI_CS, HIGH);
 
 #endif
 }

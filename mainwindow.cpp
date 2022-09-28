@@ -2,28 +2,27 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QProcess>
+#include <QtNetwork/QNetworkInterface>
 #include "builddatetime.h"
 #include "adc/ads1120.h"
 #include "flow-sensor/slf3s1300f.h"
-
+#include "expander/iopi.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     Init();
-
     System_Information();
-
     Set_Peripheral();
 
     /*ADC operation test*/
-#if 0
+
+#if 1
     m_adc = new ads1120;
 
-    m_adc->begin(ADS1120_SPI_CS, ADS1120_SPI_DRDY);
+    m_adc->begin();
     m_adc->setGain(1);
     m_adc->setDataRate(0x0);
     m_adc->setOpMode(0x0);
@@ -150,7 +149,20 @@ void MainWindow::Init()
 
 void MainWindow::Set_Peripheral()
 {
-    /*Create Timer for every peripheral*/
+
+#ifndef USE_BCM2835_LIBRARY
+
+
+#else
+    /*bcm2835 Library Init*/
+    if(bcm2835_init())
+       qDebug()<<"bcm2835 init success";
+    else
+       exit(0);
+
+#endif
+
+   /*Create Timer for flow sensor*/
     m_flow_sensor= new QTimer;
     QObject::connect(m_flow_sensor, SIGNAL(timeout()), this, SLOT(Read_FlowSensor()));
 
@@ -168,11 +180,57 @@ void MainWindow::Set_Peripheral()
 
    /*Create Signal/Slot Connection*/
     connect(m_flowSensor,SIGNAL(sig_flow_sensor_read(flow_info)), this, SLOT(Display_FlowSensor(flow_info)));
-
 }
 
 void MainWindow::System_Information()
 {
+    /* Network Information*/
+    QString eth_ip, wlan_ip;
+
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+
+    int eth0_num = QNetworkInterface::interfaceIndexFromName("eth0");
+    int wlan_num = QNetworkInterface::interfaceIndexFromName("wlan0");
+
+    if(eth0_num > 0 &&  eth0_num <= interfaces.count())
+    {
+        QList<QNetworkAddressEntry> entries = interfaces.at(eth0_num-1).addressEntries();
+
+        for (int j = 0; j < entries.count(); j++)
+        {
+            if (entries.at(j).ip().protocol() == QAbstractSocket::IPv4Protocol)
+            {
+                eth_ip = entries.at(j).ip().toString();
+                qDebug() << eth_ip;
+                ui->eth->setText("ETH0 IP : "+ eth_ip);
+            }
+        }
+    }
+    else
+    {
+         ui->eth->setText("ETH0 IP : ");
+    }
+
+    if(wlan_num > 0 &&  wlan_num <= interfaces.count())
+    {
+        QList<QNetworkAddressEntry> entries = interfaces.at(wlan_num-1).addressEntries();
+
+        for (int j = 0; j < entries.count(); j++)
+        {
+            if (entries.at(j).ip().protocol() == QAbstractSocket::IPv4Protocol)
+            {
+                wlan_ip = entries.at(j).ip().toString();
+                qDebug() << wlan_ip;
+                ui->wlan->setText("WLAN0 IP : "+ wlan_ip);
+            }
+        }
+    }
+    else
+    {
+         ui->wlan->setText("WLAN0 IP : ");
+    }
+
+    /* Application build date*/
     ui->build_date->setText(build_date);
 }
 
@@ -310,3 +368,4 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+

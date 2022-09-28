@@ -2,7 +2,9 @@
 #define ADS1120_H
 
 #include <QObject>
+#include "common.h"
 #include "bcm2835.h"
+#include "expander/iopi.h"
 
 #define SPI_MASTER_DUMMY   0xFF
 // Commands for the ADC
@@ -44,11 +46,9 @@
 #define REG_MASK_DRDY_MODE 0x02
 #define REG_MASK_RESERVED 0x01
 
-/*CS, DRDY pin assign*/
-#define ADS1120_SPI_CS      RPI_BPLUS_GPIO_J8_38
-#define ADS1120_SPI_DRDY    RPI_BPLUS_GPIO_J8_40
-
 #define USE_BCM2835_LIBRARY true
+
+class IoPi;
 
 class ads1120 : public QObject
 {
@@ -57,7 +57,8 @@ public:
     explicit ads1120(QObject *parent = nullptr);
     void writeRegister(quint8 address, quint8 value);
     quint8 readRegister(quint8 address);
-    void begin(quint8 cs_pin, quint8 drdy_pin);
+    //void begin(quint8 cs_pin, quint8 drdy_pin);
+    void begin();
     bool isDataReady(void);
     quint16 readADC(void);
     quint8 * readADC_Array(void);
@@ -93,6 +94,9 @@ signals:
 public slots:
 
 private:
+
+   IoPi *gpio_exp1, *gpio_exp2;
+
 };
 
 #endif // ADS1120_H
