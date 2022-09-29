@@ -36,6 +36,7 @@ public:
     void Function_Disable(bool);
     QString Seconds_To_Time(quint64);
     void show_popup(popup_event,QString);
+    void play_sound();
 
 signals:
 

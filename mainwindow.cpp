@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     Init();
     System_Information();
     Set_Peripheral();
-
-    system_init_done = true;
 }
 
 void MainWindow::Init()
@@ -198,6 +196,8 @@ void MainWindow::Set_Peripheral()
     connect(m_flowSensor,SIGNAL(sig_flow_sensor_read(flow_info)), this, SLOT(Display_FlowSensor(flow_info)));
 
     ui->hydration_status->setText("READY");
+
+    system_init_done = true;
 }
 
 void MainWindow::System_Information()
@@ -276,7 +276,9 @@ void MainWindow::Display_Hydration_CountDown()
 {
     if(hydration_count_down_sec == 0)
     {
+        play_sound();
         on_hydration_stop_clicked();
+        emit sig_popup_window_mgs("COMPLETE");
     }
     else
     {
@@ -470,6 +472,12 @@ void MainWindow::on_reboot_clicked()
 void MainWindow::on_power_off_clicked()
 {
       QProcess::startDetached("sudo poweroff");
+}
+
+void MainWindow::play_sound()
+{
+      QProcess::startDetached("amixer -D pulse sset Master 100%");
+      QProcess::startDetached("aplay /home/pi/Alarm07.wav");
 }
 
 MainWindow::~MainWindow()

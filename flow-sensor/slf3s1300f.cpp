@@ -141,6 +141,10 @@ quint32 slf3s1300f::operation(command cmd)
     {
 #ifndef USE_BCM2835_LIBRARY
 
+        ioctl(i2cfd, I2C_SLAVE, 0x0);
+        write(i2cfd,cmd_buf,cmd_length);
+
+        ioctl(i2cfd, I2C_SLAVE, SLAVE_ADDRESS);
 #else
         result = bcm2835_i2c_write(cmd_buf, cmd_length);
         bcm2835_i2c_setSlaveAddress(SLAVE_ADDRESS);  //I2C address
