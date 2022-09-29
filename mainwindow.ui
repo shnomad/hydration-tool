@@ -198,7 +198,7 @@ QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
 }</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="home">
      <attribute name="title">

@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QThread>
 #include "common.h"
+#include "popupwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,8 +27,11 @@ public:
     void Set_Peripheral();
     void Function_Disable(bool);
     QString Seconds_To_Time(quint64);
+    void show_popup(popup_event,QString);
 
 signals:
+
+    void sig_popup_window_mgs(QString);
 
 private slots:
     void Display_CurrentTime();
@@ -50,6 +54,8 @@ private:
 
     quint32 hydration_count_down_sec =0;
     quint64 hydration_start_time_sec =0, hydration_end_time_sec=0;
+
+    popupwindow * m_popupwindow;
 };
 
 #endif // MAINWINDOW_H

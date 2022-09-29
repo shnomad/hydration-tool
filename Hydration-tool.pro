@@ -20,7 +20,8 @@ SOURCES += \
     expander/iopi.cpp \
     flow-sensor/slf3s1300f.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    popupwindow.cpp
 
 HEADERS += \
     adc/ads1120.h \
@@ -28,14 +29,16 @@ HEADERS += \
     common.h \
     expander/iopi.h \
     flow-sensor/slf3s1300f.h \
-    mainwindow.h
+    mainwindow.h \
+    popupwindow.h
 
 INCLUDEPATH +=/opt/Rpi4/sysroot/usr/local/include
 LIBS += -L/opt/Rpi4/sysroot/usr/local/lib -lbcm2835 \
 
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    popupwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

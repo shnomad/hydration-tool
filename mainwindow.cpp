@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     System_Information();
     Set_Peripheral();
 
-    /*ADC operation test*/
+   /*ADC operation test*/
 
 #if 1
     m_adc = new ads1120;
@@ -145,6 +145,7 @@ void MainWindow::Init()
     /*1 sec timer for hydration count down*/
     m_hydration_count_down = new QTimer(this);
     QObject::connect(m_hydration_count_down, SIGNAL(timeout()), this, SLOT(Display_Hydration_CountDown()));
+
 }
 
 void MainWindow::Set_Peripheral()
@@ -159,7 +160,6 @@ void MainWindow::Set_Peripheral()
        qDebug()<<"bcm2835 init success";
     else
        exit(0);
-
 #endif
 
    /*Create Timer for flow sensor*/
@@ -264,6 +264,8 @@ void MainWindow::Display_Hydration_CountDown()
     {
         hydration_count_down_sec--;
         ui->hydration_countdown->setText(Seconds_To_Time(hydration_count_down_sec));
+
+        emit sig_popup_window_mgs(Seconds_To_Time(hydration_count_down_sec));
     }
 }
 
@@ -285,6 +287,12 @@ void MainWindow::on_hydration_start_clicked()
 
      /*Funcion Setting disable */
      Function_Disable(true);
+
+     /* Create popup window*/
+     show_popup(HYDRATION_PROGRESS,"Hydration processing");
+
+     /* Main and popup Object connect */
+     QObject::connect(this, SIGNAL(sig_popup_window_mgs(QString)), m_popupwindow, SLOT(receive_popup_msg(QString)));
 
 }
 
@@ -352,6 +360,13 @@ void MainWindow::Function_Disable(bool OnOff)
     ui->valve_open->setDisabled(OnOff);
     ui->valve_close->setDisabled(OnOff);
     ui->flow_cal->setDisabled(OnOff);
+}
+
+void MainWindow::show_popup(popup_event event,QString msg)
+{
+    m_popupwindow = new popupwindow(event,msg,this);
+    m_popupwindow->move(352, 100);
+    m_popupwindow->show();
 }
 
 void MainWindow::on_reboot_clicked()

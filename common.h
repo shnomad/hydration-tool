@@ -19,4 +19,11 @@ struct flow_info
    bool exp_smoothing_active =false;
 }; Q_DECLARE_METATYPE(flow_info)
 
+enum popup_event{
+    SYS_ERROR =0x0,
+    HYDRATION_PROGRESS,
+    HYDRATION_COMPLETE,
+};
+
+
 #endif // COMMON_H
