@@ -13,42 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     Init();
     System_Information();
     Set_Peripheral();
 
-   /*ADC operation test*/
-
-#if 1
-    m_adc = new ads1120;
-
-    m_adc->begin();
-    m_adc->setGain(1);
-    m_adc->setDataRate(0x0);
-    m_adc->setOpMode(0x0);
-    m_adc->setConversionMode(0x0);
-    m_adc->setVoltageRef(0x1);
-    m_adc->setDRDYmode(0);
-    m_adc->setTemperatureMode(0x0);
-
-    /* CH0 : 0x8
-     * CH1 : 0x9
-     * CH2 : 0xA
-     * CH3 : 0xB
-    */
-
-    m_adc->setMultiplexer(0x08);
-    quint16 value_a0 = m_adc->readADC_Single();
-
-    qDebug()<<"read adc Value :" <<value_a0;
-
-    m_adc->setMultiplexer(0x09);
-    quint16 value_a1 = m_adc->readADC_Single();
-
-    qDebug()<<"read adc Value :" <<value_a1;
-
-#endif
-
+    system_init_done = true;
 }
 
 void MainWindow::Init()
@@ -133,8 +103,6 @@ void MainWindow::Init()
     ui->set_hydration_time->setDisplayFormat("hh:mm");
     ui->set_hydration_time->setTime(QTime(12,00));
 
-    /*test mode setting*/
-
     /*Create flow status table */
 
     /*1 sec timer for Current Clock*/
@@ -146,6 +114,10 @@ void MainWindow::Init()
     m_hydration_count_down = new QTimer(this);
     QObject::connect(m_hydration_count_down, SIGNAL(timeout()), this, SLOT(Display_Hydration_CountDown()));
 
+    /*pwm motor control spinbox*/
+    ui->pwm_value_set->setValue(16);
+    ui->pwm_value_set->setRange(4.0, 2048.0);
+    ui->pwm_value_set->setSingleStep(2.0);
 }
 
 void MainWindow::Set_Peripheral()
@@ -164,9 +136,7 @@ void MainWindow::Set_Peripheral()
 
    /*Create Timer for flow sensor*/
     m_flow_sensor= new QTimer;
-    QObject::connect(m_flow_sensor, SIGNAL(timeout()), this, SLOT(Read_FlowSensor()));
-
-   /*Create IO Plus*/
+    QObject::connect(m_flow_sensor, SIGNAL(timeout()), this, SLOT(Read_FlowSensor()));  
 
    /*Create flow sensor Control*/
     m_flowSensor = new slf3s1300f;
@@ -174,12 +144,60 @@ void MainWindow::Set_Peripheral()
     m_flowSensor->operation(slf3s1300f::SOFT_RESET);
     m_flowSensor->operation(slf3s1300f::READ_PRODUCT_ID);
 
-   /*Create ADC Control*/
+    /*Valve Control I/O settings*/
+    bcm2835_gpio_fsel(VALVE_CONTROL_GPIO, BCM2835_GPIO_FSEL_OUTP);
+    on_valve_close_clicked();
+
+   /*ADC operation test*/
+
+ #if 0
+     m_adc = new ads1120;
+
+     m_adc->begin();
+     m_adc->setGain(1);
+     m_adc->setDataRate(0x0);
+     m_adc->setOpMode(0x0);
+     m_adc->setConversionMode(0x0);
+     m_adc->setVoltageRef(0x1);
+     m_adc->setDRDYmode(0);
+     m_adc->setTemperatureMode(0x0);
+
+     /* CH0 : 0x8
+      * CH1 : 0x9
+      * CH2 : 0xA
+      * CH3 : 0xB
+     */
+
+     m_adc->setMultiplexer(0x08);
+     quint16 value_a0 = m_adc->readADC_Single();
+
+     qDebug()<<"read adc Value :" <<value_a0;
+
+     m_adc->setMultiplexer(0x09);
+     quint16 value_a1 = m_adc->readADC_Single();
+
+     qDebug()<<"read adc Value :" <<value_a1;
+
+ #endif
 
    /*Create PWM Motor Control*/
+   bcm2835_gpio_fsel(MOTOR_ONOFF_CONTROL_GPIO, BCM2835_GPIO_FSEL_OUTP);
+   bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_DISABLE);
+   bcm2835_gpio_fsel(MOTOR_PWM_CONTROL_GPIO, BCM2835_GPIO_FSEL_ALT5);
+
+   // Clock divider is set to 16.
+   // With a divider of 16 and a RANGE of 1024, in MARKSPACE mode,
+   // the pulse repetition frequency will be
+   // 1.2MHz/1024 = 1171.875Hz, suitable for driving a DC motor with PWM
+   // bcm2835_pwm_set_clock(BCM2835_PWM_CLOCK_DIVIDER_16);
+   // bcm2835_pwm_set_mode(PWM_CHANNEL, 1, 1);
+   // bcm2835_pwm_set_range(PWM_CHANNEL, PWM_RANGE);
+   bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_DISABLE);
 
    /*Create Signal/Slot Connection*/
     connect(m_flowSensor,SIGNAL(sig_flow_sensor_read(flow_info)), this, SLOT(Display_FlowSensor(flow_info)));
+
+    ui->hydration_status->setText("READY");
 }
 
 void MainWindow::System_Information()
@@ -274,7 +292,7 @@ void MainWindow::on_hydration_start_clicked()
     m_flow_sensor->start(1000);
     m_hydration_count_down->start(1000);
 
-    ui->hydration_start->setStyleSheet("background-color:rgb(0,100,0)");
+    ui->hydration_start->setStyleSheet("background-color:rgb(0,100,0); color:white;");
     ui->hydration_stop->setStyleSheet("default");
 
     /*Update Hydration Start Time*/
@@ -294,6 +312,8 @@ void MainWindow::on_hydration_start_clicked()
      /* Main and popup Object connect */
      QObject::connect(this, SIGNAL(sig_popup_window_mgs(QString)), m_popupwindow, SLOT(receive_popup_msg(QString)));
 
+     /*Update system status*/
+     ui->hydration_status->setText("WORKING");
 }
 
 void MainWindow::on_hydration_stop_clicked()
@@ -308,6 +328,79 @@ void MainWindow::on_hydration_stop_clicked()
     /*Get last hydration Time value and restore*/
     ui->hydration_countdown->setText(ui->set_hydration_time->time().toString());
     hydration_count_down_sec =QTime(0,0).secsTo(ui->set_hydration_time->time());
+
+    /*Update system status*/
+    ui->hydration_status->setText("STOP");
+}
+
+void MainWindow::on_bias_on_clicked()
+{
+    ui->bias_on->setStyleSheet("background-color:rgb(0,100,0); color:white;");
+    ui->bias_off->setStyleSheet("default");
+}
+
+void MainWindow::on_bias_off_clicked()
+{
+    ui->bias_on->setStyleSheet("default");
+    ui->bias_off->setStyleSheet("default");
+}
+
+void MainWindow::on_pump_start_clicked()
+{
+    bcm2835_pwm_set_mode(PWM_CHANNEL, 1, 1);
+    bcm2835_pwm_set_range(PWM_CHANNEL, PWM_RANGE);
+    bcm2835_pwm_set_clock(clock_divide);
+    bcm2835_pwm_set_data(PWM_CHANNEL, pwm_data);
+
+    ui->pump_start->setStyleSheet("background-color:rgb(0,100,0); color:white;");
+    ui->pump_stop->setStyleSheet("default");
+    bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_ENABLE);
+    pump_working = true;
+}
+
+void MainWindow::on_pump_stop_clicked()
+{
+    ui->pump_start->setStyleSheet("default");
+    ui->pump_stop->setStyleSheet("default");
+    bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_DISABLE);
+    pump_working = false;
+}
+
+void MainWindow::on_pwm_value_set_valueChanged(const QString &arg1)
+{
+    if(system_init_done == true)
+    {
+        clock_divide = arg1.toInt(0,10);
+
+        bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_DISABLE);
+
+        bcm2835_pwm_set_clock(clock_divide);
+
+        bcm2835_pwm_set_data(PWM_CHANNEL, pwm_data);
+
+        if(pump_working == true)
+            bcm2835_gpio_write(MOTOR_ONOFF_CONTROL_GPIO, MOTOR_ENABLE);
+    }
+    else
+    {
+         clock_divide = arg1.toInt(0,10);
+    }
+}
+
+void MainWindow::on_valve_open_clicked()
+{
+    ui->valve_open->setStyleSheet("background-color:rgb(0,100,0); color:white;");
+    ui->valve_close->setStyleSheet("default");
+
+    bcm2835_gpio_write(VALVE_CONTROL_GPIO, 0x1);
+}
+
+void MainWindow::on_valve_close_clicked()
+{
+    ui->valve_open->setStyleSheet("default");
+    ui->valve_close->setStyleSheet("default");
+
+    bcm2835_gpio_write(VALVE_CONTROL_GPIO, 0x0);
 }
 
 void MainWindow::on_adc_cal_clicked()
@@ -383,4 +476,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-

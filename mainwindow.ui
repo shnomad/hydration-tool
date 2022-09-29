@@ -621,16 +621,6 @@ font: bold 50px;
      <attribute name="title">
       <string>SYSTEM</string>
      </attribute>
-     <widget class="QTextEdit" name="debug_info">
-      <property name="geometry">
-       <rect>
-        <x>22</x>
-        <y>30</y>
-        <width>450</width>
-        <height>360</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QPushButton" name="power_off">
       <property name="geometry">
        <rect>
@@ -661,7 +651,7 @@ font: bold 50px;
       <property name="geometry">
        <rect>
         <x>590</x>
-        <y>283</y>
+        <y>285</y>
         <width>420</width>
         <height>70</height>
        </rect>
@@ -747,11 +737,57 @@ font: bold 50px;
        </property>
       </widget>
      </widget>
+     <widget class="QGroupBox" name="motor_speed_control">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>285</y>
+        <width>420</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Motor speed control</string>
+      </property>
+      <widget class="QSpinBox" name="pwm_value_set">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>28</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QSpinBox::up-button
+{
+   subcontrol-position:right;
+   width:  24px;  /*??大小*/
+   height: 28px;       
+}
+
+QSpinBox::down-button
+{
+   subcontrol-position:left;
+   width:  24px;  /*??大小*/
+   height: 28px;       
+}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </widget>
      <zorder>build_info</zorder>
-     <zorder>debug_info</zorder>
      <zorder>power_off</zorder>
      <zorder>reboot</zorder>
      <zorder>net_info</zorder>
+     <zorder>motor_speed_control</zorder>
     </widget>
    </widget>
    <widget class="QWidget" name="layoutWidget">
